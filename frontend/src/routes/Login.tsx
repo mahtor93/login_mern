@@ -3,7 +3,7 @@ import DefaultLayout from "../layout/DefaultLayout";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { API_URL } from "../auth/constants";
-import { AuthResponseError } from "../types/types";
+import { AuthResponseError, AuthResponse } from "../types/types";
 
 export default function Login(){
     const [user,setUser] = useState('');
@@ -16,7 +16,7 @@ export default function Login(){
 
     const timestamp = Date.now();
 
-    async function handleLogin(e: React.FormEvent<HTMLFormElement>){
+    async function handleLogin(e: React.FormEvent){
         e.preventDefault();
 
             try{
@@ -31,7 +31,15 @@ export default function Login(){
                 if(response.ok){
                     console.log('Logged In',timestamp);
                     setErrorResponse('');
+                    
+                    const json = (await response.json()) as AuthResponse;
+                    console.log(json)
+                    if(json.body.accessToken && json.body.refreshToken){
+                        auth.saveUser(json);
+                    }
+
                     goTo('/dashboard');
+
                 }else{
                     console.log('Something went wrong',timestamp)
                     const json = (await response.json()) as AuthResponseError;
@@ -54,7 +62,7 @@ export default function Login(){
 
     return ( 
         <DefaultLayout>
-            <form className="form" onSubmit={(e) =>handleLogin(e)}>
+            <form className="form" onSubmit={handleLogin}>
                 <h1>Login</h1>
                 {!!errorResponse && <div className="errorMessage centerDiv">{errorResponse}</div>}
                 <label className={isUser?'':'requiredLabel'}>User</label>

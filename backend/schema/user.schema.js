@@ -1,12 +1,15 @@
 import Mongoose from "mongoose";
 import bcrypt from 'bcrypt';
-
+import getUserInfo from "../lib/getUserInfo.js";
+import { generateAccessToken, generateRefreshToken } from "../auth/sign.js";
+import Token from '../schema/token.schema.js'
 
 const UserSchema = new Mongoose.Schema({
     id:{type:Object},
     user:{type:String,required:true,unique:true},
     passwd:{type:String, required:true},
     mail:{type:String, required:true},
+    role:{type:String, default:'user',required:true}
 });
 
 UserSchema.pre('save', function(next){
@@ -35,6 +38,22 @@ UserSchema.methods.comparePassword = async function(passwd,hash){
     return same;
 }
 
+UserSchema.methods.createAccessToken = function(){
+    return generateAccessToken(getUserInfo(this));
+}
+
+UserSchema.methods.refreshAccessToken = async function(next){
+
+    const refreshToken = generateRefreshToken(getUserInfo(this));
+    console.error('refreshToken ',refreshToken);
+    try{
+        await new Token({ token:refreshToken}).save();
+        console.log('Token saved ', refreshToken);
+        return refreshToken;
+    }catch (error){
+        console.error(error);
+    }
+}
 
 
 export default Mongoose.model('User', UserSchema);

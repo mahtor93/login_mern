@@ -15,4 +15,5 @@ export interface User{
     _id: string;
     user: string;
     mail: string;
+    role:string;
 }

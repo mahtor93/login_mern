@@ -17,3 +17,7 @@ export interface User{
     mail: string;
     role:string;
 }
+
+declare module '../utils/password.js'{
+    export function isSecurePassword(pass: string):{ alert:string; isSecure:boolean};
+}

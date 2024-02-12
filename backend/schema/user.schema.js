@@ -43,9 +43,7 @@ UserSchema.methods.createAccessToken = function(){
 }
 
 UserSchema.methods.refreshAccessToken = async function(next){
-
     const refreshToken = generateRefreshToken(getUserInfo(this));
-    console.error('refreshToken ',refreshToken);
     try{
         await new Token({ token:refreshToken}).save();
         console.log('Token saved ', refreshToken);

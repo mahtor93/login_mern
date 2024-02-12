@@ -33,7 +33,6 @@ export default function Login(){
                     setErrorResponse('');
                     
                     const json = (await response.json()) as AuthResponse;
-                    console.log(json)
                     if(json.body.accessToken && json.body.refreshToken){
                         auth.saveUser(json);
                     }

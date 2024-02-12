@@ -18,7 +18,7 @@ async function registerUser( req,res){
         const exists = await userx.usernameExist(user);
 
         if(exists){
-            res.status(400).json(jsonResponse(400, {error:"Username already exists"}));
+            res.status(400).json(jsonResponse(400, {error:"El nombre de usuario ya existe"}));
         }
         const newUser = new User({user,mail,passwd});
         await newUser.save();
@@ -44,7 +44,7 @@ async function authUser(req,res){
             const correctPasswd = await loggedUser.comparePassword(passwd,loggedUser.passwd);
             if(correctPasswd){
                 const accessToken = loggedUser.createAccessToken();
-                const refreshToken = loggedUser.refreshAccessToken();
+                const refreshToken = await loggedUser.refreshAccessToken();
                 res.status(200).json(jsonResponse(200, {accessToken,refreshToken,user:getUserInfo(loggedUser)}));
             }else{
                 res.status(400).json(jsonResponse(400, {error:'Invalid username or password'}));

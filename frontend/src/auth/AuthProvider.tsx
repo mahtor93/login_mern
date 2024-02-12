@@ -1,7 +1,7 @@
 //componente para manejar autorización en rutas
 
 import { useContext,createContext, useState,useEffect } from "react";
-import type { AccesTokenResponse, AuthResponse } from "../types/types";
+import type { AccesTokenResponse, AuthResponse, User } from "../types/types";
 import { API_URL } from "./constants";
 
 interface AuthProviderProps{
@@ -18,11 +18,13 @@ const AuthContext = createContext({
 export default function AuthProvider({children}: AuthProviderProps){
     const[isAuth,setIsAuth] = useState(false);
     const[accessToken,setAccessToken] = useState<string>('');
+    const[user,setUSer]= useState<User>();
     //const[refreshToken,setRefreshToken] = useState<string>('');
 
     useEffect(()=>{},[])
 
     async function requestNewAccessToken(refreshToken:string){
+        //obtener un token en caso de que no exista
         try{
             const response = await fetch(`${API_URL}/refresh-token`,{
                 method:'POST',
@@ -37,7 +39,7 @@ export default function AuthProvider({children}: AuthProviderProps){
                 if(json.error){
                      throw new Error(json.error);
                 }
-                return json.body.accesToken;
+                return json.body.accessToken;
             }
             
         }catch(error){
@@ -46,6 +48,28 @@ export default function AuthProvider({children}: AuthProviderProps){
         }
     }
 
+    async function getUserInfo(accessToken:string){
+        //obtener las info del usuario que solicita el token
+        try{
+            const response = await fetch(`${API_URL}/user`,{
+                method:'GET',
+                headers:{
+                    'Content-Type':'application/json',
+                    'Authorization':`Bearer ${accessToken}`
+                }
+            });
+            if(response.ok){
+                const json = await response.json();
+                if(json.error){
+                    throw new Error(json.error);
+                }
+                return json;
+            }
+        }catch(error){
+            console.error(error);
+            return null;
+        }
+    }
 
     async function checkAuth(){
         if(accessToken){
@@ -53,9 +77,27 @@ export default function AuthProvider({children}: AuthProviderProps){
         }else{
             const token = getRefreshToken();
             if(token){
+                const newAccessToken = await requestNewAccessToken(token);
 
+                if(newAccessToken){
+                    const userInfo = await getUserInfo(newAccessToken);
+
+                    if(userInfo){
+                        saveSessionInfo(
+                            userInfo, 
+                            newAccessToken, 
+                            token);
+                    }
+                }
             }
         }
+    }
+
+    function saveSessionInfo(userInfo:User, accessToken:string,refreshToken:string){
+        setAccessToken(accessToken);
+        localStorage.setItem('token', JSON.stringify(refreshToken));
+        setIsAuth(true);
+        setUSer(userInfo);
     }
 
 
@@ -73,12 +115,10 @@ export default function AuthProvider({children}: AuthProviderProps){
     }
 
     function saveUser(userData: AuthResponse) {
-        //guarda en local la info del usuario.
-        setAccessToken(userData.body.accessToken);
-       // setRefreshToken(userData.body.refreshToken);
-        localStorage.setItem('token', JSON.stringify(userData.body.refreshToken));
-
-        setIsAuth(true);
+        saveSessionInfo(
+            userData.body.user, 
+            userData.body.accessToken, 
+            userData.body.refreshToken);
     }
 
     return(

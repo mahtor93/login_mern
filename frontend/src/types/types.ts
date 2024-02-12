@@ -21,7 +21,7 @@ export interface User{
 export interface AccesTokenResponse{
     statusCode: number;
     body:{
-        accesToken: string;
+        accessToken: string;
     },
     error?:string;
 }

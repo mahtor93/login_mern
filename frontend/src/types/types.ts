@@ -18,6 +18,15 @@ export interface User{
     role:string;
 }
 
+export interface AccesTokenResponse{
+    statusCode: number;
+    body:{
+        accesToken: string;
+    },
+    error?:string;
+}
+
+
 declare module '../utils/password.js'{
     export function isSecurePassword(pass: string):{ alert:string; isSecure:boolean};
 }

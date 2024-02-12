@@ -29,7 +29,6 @@ export default function Login(){
                     })
                 });
                 if(response.ok){
-                    console.log('Logged In',timestamp);
                     setErrorResponse('');
                     
                     const json = (await response.json()) as AuthResponse;

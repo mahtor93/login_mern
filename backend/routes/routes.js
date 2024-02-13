@@ -1,6 +1,7 @@
 import  express  from "express";
 import  jsonResponse from "../lib/jsonResponse.js";
 import { registerUser,authUser } from "../controllers/user.controller.js";
+import { refreshToken } from "../controllers/token.controller.js";
 const router = express.Router();
 
 
@@ -23,6 +24,8 @@ router.get('/logout',(req,res)=>{
 router.get('/refresh-token',(req,res)=>{
     res.send('Refresh Token')
 });
+
+router.post('/refresh-token', refreshToken)
 
 router.get('/register',(req,res)=>{res.send('Register');});
 router.post('/register',registerUser);

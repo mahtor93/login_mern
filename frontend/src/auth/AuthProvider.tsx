@@ -73,7 +73,7 @@ export default function AuthProvider({children}: AuthProviderProps){
 
     async function checkAuth(){
         if(accessToken){
-
+            return;
         }else{
             const token = getRefreshToken();
             if(token){

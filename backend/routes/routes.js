@@ -26,7 +26,7 @@ router.get('/refresh-token',(req,res)=>{
     res.send('Refresh Token')
 });
 
-router.post('/refresh-token', refreshToken)
+router.post('/refresh-token', async(req,res) => {await refreshToken(req,res)})
 
 router.get('/register',(req,res)=>{res.send('Register');});
 router.post('/register',registerUser);

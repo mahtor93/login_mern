@@ -6,9 +6,12 @@ import { generateAccessToken } from "../auth/sign.js";
 
 async function refreshToken(req,res){
     const refreshToken = getTokenFromHeader(req.headers);
+
     if(refreshToken){
+
         try{
             const foundToken = await Token.findOne({ token: refreshToken });
+
             if(!foundToken){
                 return res.status(401).send(jsonResponse(401, {error:'No autorizado >:('}));
             }

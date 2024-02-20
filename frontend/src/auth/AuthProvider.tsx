@@ -1,7 +1,7 @@
 //componente para manejar autorización en rutas
 
 import { useContext,createContext, useState,useEffect } from "react";
-import type { AccesTokenResponse, AuthResponse, User } from "../types/types";
+import type { AccessTokenResponse, AuthResponse, User } from "../types/types";
 import { API_URL } from "./constants";
 
 interface AuthProviderProps{
@@ -21,8 +21,6 @@ export default function AuthProvider({children}: AuthProviderProps){
     const[user,setUSer]= useState<User>();
     //const[refreshToken,setRefreshToken] = useState<string>('');
 
-    useEffect(()=>{},[])
-
     async function requestNewAccessToken(refreshToken:string){
         //obtener un token en caso de que no exista
         try{
@@ -35,7 +33,7 @@ export default function AuthProvider({children}: AuthProviderProps){
                 },
             });
             if(response.ok){
-                const json = await response.json() as AccesTokenResponse;
+                const json = await response.json() as AccessTokenResponse;
                 if(json.error){
                      throw new Error(json.error);
                 }
@@ -77,8 +75,8 @@ export default function AuthProvider({children}: AuthProviderProps){
         }else{
             const token = getRefreshToken();
             if(token){
+                console.log('requesting access token');
                 const newAccessToken = await requestNewAccessToken(token);
-
                 if(newAccessToken){
                     const userInfo = await getUserInfo(newAccessToken);
 
@@ -105,21 +103,26 @@ export default function AuthProvider({children}: AuthProviderProps){
         return accessToken;
     }
 
-    function getRefreshToken():string|null{
-        const token = localStorage.getItem('Token');
-        if(token){
-            const { refreshToken } = JSON.parse(token);
-            return refreshToken;
+    function getRefreshToken(){
+        const tokenData = localStorage.getItem('token');
+        if(tokenData){
+            const token = JSON.parse(tokenData);
+            return token;
         }
         return null;
     }
 
     function saveUser(userData: AuthResponse) {
+        
         saveSessionInfo(
             userData.body.user, 
             userData.body.accessToken, 
             userData.body.refreshToken);
     }
+
+    useEffect(()=>{
+        checkAuth()
+    },[])
 
     return(
         <AuthContext.Provider value={{isAuth, getAccessToken, getRefreshToken, saveUser}}>

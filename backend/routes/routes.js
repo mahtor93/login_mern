@@ -2,24 +2,25 @@ import  express  from "express";
 import  jsonResponse from "../lib/jsonResponse.js";
 import { registerUser,authUser } from "../controllers/user.controller.js";
 import { refreshToken } from "../controllers/token.controller.js";
+import { authenticate } from "../auth/authenticate.js";
 const router = express.Router();
 
 
 
-router.get('/dashboard',(req,res)=>{
+router.get('/dashboard', authenticate,(req,res)=>{
     res.send('Dashboard')
 });
 
-router.get('/user',(req,res)=>{
-    res.send('User')
+router.get('/user', authenticate,(req,res)=>{
+    res.status(200).json(jsonResponse(200, req.user));
+});
+
+router.get('/logout', authenticate,(req,res)=>{
+    res.send('Logout')
 });
 
 router.get('/login',(req,res)=>{res.send('Login')});
 router.post('/login', authUser);
-
-router.get('/logout',(req,res)=>{
-    res.send('Logout')
-});
 
 router.get('/refresh-token',(req,res)=>{
     res.send('Refresh Token')

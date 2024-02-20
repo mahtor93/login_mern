@@ -12,9 +12,7 @@ async function refreshToken(req,res){
             if(!foundToken){
                 return res.status(401).send(jsonResponse(401, {error:'No autorizado >:('}));
             }
-
             const payload = verifyRefreshToken(foundToken.token);
-            
             if(payload){
                 const accessToken = generateAccessToken(payload.user)
                 return res.status(200).json(jsonResponse(200, { accessToken }));
@@ -27,7 +25,6 @@ async function refreshToken(req,res){
         }
     }else{
         res.status(401).send(jsonResponse(401, {error:'No Token :('}));
-
     }
 }
 

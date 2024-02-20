@@ -18,7 +18,7 @@ export interface User{
     role:string;
 }
 
-export interface AccesTokenResponse{
+export interface AccessTokenResponse{
     statusCode: number;
     body:{
         accessToken: string;

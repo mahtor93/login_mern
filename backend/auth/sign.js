@@ -6,7 +6,6 @@ dotenv.config({
 })
 
 function sign(payload,isAccessToken){
-    console.log('sign.js payload:',payload);
     return jwt.sign(
         payload, //lo que queremos guardar en la BD, info del usuario a encriptar
         isAccessToken
